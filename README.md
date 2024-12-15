@@ -1,0 +1,103 @@
+# Healer Control Application
+
+This application allows you to control a healer character in a game by sending commands based on information retrieved from another game window.
+
+## Prerequisites
+
+Before you begin, ensure you have met the following requirements:
+
+- You have installed Python 3.x.
+- You have installed the required Python packages.
+- You are using a Windows operating system (required for `win32api` and `win32gui`).
+
+## Installation
+
+1. **Clone the repository:**
+
+    ```sh
+    git clone https://github.com/yourusername/healer-control.git
+    cd healer-control
+    ```
+
+2. **Install the required Python packages:**
+
+    ```sh
+    pip install -r requirements.txt
+    ```
+
+    Ensure your `requirements.txt` includes the following packages:
+
+    ```txt
+    pywin32
+    pynput
+    psutil
+    ```
+
+3. **Set up your environment:**
+
+    Ensure you have the necessary environment variables set up, such as `OPENAI_API_KEY` if you are using OpenAI's API.
+
+## Usage
+
+1. **Run the main application:**
+
+    ```sh
+    python script.py
+    ```
+
+    This will open the Healer Control application window.
+
+2. **Enter the required information:**
+
+    - **Info PID (main char):** The PID of the main character's game window.
+    - **Command PID (healer):** The PID of the healer's game window.
+    - **Command to send (healer):** The key command to send to the healer's game window.
+
+3. **Start the healer:**
+
+    Click the "Start Healer" button to start sending commands to the healer's game window based on the information retrieved from the main character's game window.
+
+4. **Stop the healer:**
+
+    Click the "Stop Healer" button to stop sending commands.
+
+## File Structure
+
+- `script.py`: The main application script that provides the GUI and starts/stops the healer process.
+- `healer.py`: The script that retrieves information from the game windows and sends commands to the healer's game window.
+
+## Functions
+
+### script.py
+
+- [HealerApp.__init__(self, root)](http://_vscodecontentref_/0): Initializes the application window.
+- [HealerApp.start_healer(self)](http://_vscodecontentref_/1): Starts the healer process.
+- [HealerApp.stop_healer(self)](http://_vscodecontentref_/2): Stops the healer process.
+- [HealerApp.update_info(self, info_window_title, command_window_title)](http://_vscodecontentref_/3): Updates the information labels in the application window.
+- [HealerApp.get_window_title(self, pid)](http://_vscodecontentref_/4): Retrieves the window title for a given PID.
+
+### healer.py
+
+- [send_key(hwnd, key)](http://_vscodecontentref_/5): Sends a key command to a window.
+- [find_game_window_title_by_pid(pid)](http://_vscodecontentref_/6): Finds the window title for a given PID.
+- [find_game_window_by_title(title)](http://_vscodecontentref_/7): Finds the window handle for a given window title.
+- [get_information_from_window(hwnd)](http://_vscodecontentref_/8): Retrieves information from a window.
+- [monitor_health_and_heal(info_pid, command_pid, heal_key)](http://_vscodecontentref_/9): Monitors the health of the main character and sends heal commands to the healer.
+
+## Contributing
+
+To contribute to this project, follow these steps:
+
+1. Fork the repository.
+2. Create a new branch: `git checkout -b feature-branch`.
+3. Make your changes and commit them: `git commit -m 'Add some feature'`.
+4. Push to the branch: `git push origin feature-branch`.
+5. Submit a pull request.
+
+## License
+
+This project is licensed under the MIT License. See the LICENSE file for details.
+
+## Contact
+
+If you have any questions or suggestions, feel free to open an issue or contact the project maintainer at [your-email@example.com].
