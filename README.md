@@ -15,8 +15,8 @@ Before you begin, ensure you have met the following requirements:
 1. **Clone the repository:**
 
     ```sh
-    git clone https://github.com/yourusername/healer-control.git
-    cd healer-control
+    git clone https://github.com/gdalba/talis_bot.git
+    cd talis_bot
     ```
 
 2. **Install the required Python packages:**
@@ -28,14 +28,24 @@ Before you begin, ensure you have met the following requirements:
     Ensure your `requirements.txt` includes the following packages:
 
     ```txt
-    pywin32
-    pynput
-    psutil
+    MouseInfo==0.1.3
+    pillow==11.0.0
+    psutil==6.1.0
+    PyAutoGUI==0.9.54
+    PyGetWindow==0.0.9
+    PyMsgBox==1.0.9
+    pynput==1.7.7
+    pyperclip==1.9.0
+    PyRect==0.2.0
+    PyScreeze==1.0.1
+    pytweening==1.2.0
+    pywin32==308
+    six==1.17.0
     ```
 
 3. **Set up your environment:**
 
-    Ensure you have the necessary environment variables set up, such as `OPENAI_API_KEY` if you are using OpenAI's API.
+    I recommend creating a conda environment for this.
 
 ## Usage
 
@@ -45,7 +55,7 @@ Before you begin, ensure you have met the following requirements:
     python script.py
     ```
 
-    This will open the Healer Control application window.
+    This will open the bot application window.
 
 2. **Enter the required information:**
 
