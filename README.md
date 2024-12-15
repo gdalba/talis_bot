@@ -1,4 +1,4 @@
-# Healer Control Application
+# Talisman Script for fun
 
 This application allows you to control a healer character in a game by sending commands based on information retrieved from another game window.
 
