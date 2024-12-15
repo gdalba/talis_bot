@@ -20,11 +20,13 @@ class HealerApp:
         self.command_pid_entry = tk.Entry(root)
         self.command_pid_entry.pack(pady=5)
 
-        self.key_pid_label = tk.Label(root, text="Command to send (healer):")
-        self.key_pid_label.pack(pady=5)
-        self.key_pid_entry = tk.Entry(root)
-        self.key_pid_entry.pack(pady=5)
+        self.key_healing_label = tk.Label(root, text="Command to send (healer):")
+        self.key_healing_label.pack(pady=5)
+        self.key_healing_entry = tk.Entry(root)
+        self.key_healing_entry.pack(pady=5)
 
+        self.smart_button = tk.Button(root, text="Smart bot", command=self.smart_button)
+        self.smart_button.pack(pady=10)
         
         self.start_button = tk.Button(root, text="Start Healer", command=self.start_healer)
         self.start_button.pack(pady=10)
@@ -37,11 +39,19 @@ class HealerApp:
         
         self.process = None
 
+    def smart_button(self):
+        if self.process is None:
+            print("Smart bot")
+            info_pid = self.info_pid_entry.get()
+            info_window_title = self.get_window_title(info_pid)
+            self.process = subprocess.Popen(["python", "parse_game.py", str(info_pid)])
+        return
+
     def start_healer(self):
         if self.process is None:
             info_pid = self.info_pid_entry.get()
             command_pid = self.command_pid_entry.get()
-            heal_key = self.key_pid_entry.get()
+            heal_key = self.key_healing_entry.get()
             if info_pid and command_pid and heal_key:
                 info_pid = int(info_pid)
                 command_pid = int(command_pid)
