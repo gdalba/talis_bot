@@ -29,6 +29,7 @@ Before you begin, ensure you have met the following requirements:
 
     ```txt
     MouseInfo==0.1.3
+    packaging==24.2
     pillow==11.0.0
     psutil==6.1.0
     PyAutoGUI==0.9.54
@@ -38,6 +39,7 @@ Before you begin, ensure you have met the following requirements:
     pyperclip==1.9.0
     PyRect==0.2.0
     PyScreeze==1.0.1
+    pytesseract==0.3.13
     pytweening==1.2.0
     pywin32==308
     six==1.17.0
@@ -45,14 +47,18 @@ Before you begin, ensure you have met the following requirements:
 
 3. **Set up your environment:**
 
-    I recommend creating a conda environment for this.
+    I recommend creating a conda environment for this. currently using "talis"
+    ```sh
+    conda activate talis
+    ```
 
 ## Usage
 
 1. **Run the main application:**
 
+    You can now run command_five.py to find the most up-to-date version.
     ```sh
-    python script.py
+    python command_five.py
     ```
 
     This will open the bot application window.
@@ -60,7 +66,7 @@ Before you begin, ensure you have met the following requirements:
 2. **Enter the required information:**
 
     - **Info PID (main char):** The PID of the main character's game window.
-    - **Command PID (healer):** The PID of the healer's game window.
+    - **Teammates 1 tp 4:** The PID of teammamtes.
     - **Command to send (healer):** The key command to send to the healer's game window.
 
 3. **Start the healer:**
