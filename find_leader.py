@@ -66,7 +66,9 @@ def extract_text_from_image(image):
         str: Extracted text from the image.
     """
     gray_image = image.convert("L")  # Convert to grayscale for better OCR accuracy
-    extracted_text = pytesseract.image_to_string(gray_image)
+    # improve OCR accuracy by applying image processing techniques
+    gray_image = gray_image.point(lambda p: p > 190 and 255)  # Thresholding
+    extracted_text = pytesseract.image_to_string(gray_image)    
     return extracted_text.strip()
 
 def monitor_game_elements(pid, regions):
@@ -77,28 +79,19 @@ def monitor_game_elements(pid, regions):
         regions (dict): Dictionary mapping labels to region coordinates.
     """
     for label, region in regions.items():
-        print(f"Capturing '{label}'...")
+        print(f"Capturing '{label}'... for PID {pid}")
         screenshot = capture_region(pid, region)
         if screenshot:
-            screenshot.show()  # Display the screenshot for debugging
+            #screenshot.show()  # Display the screenshot for debugging
             extracted_text = extract_text_from_image(screenshot)
-            print(f"{label}: {extracted_text}")
+            if extracted_text:
+                print(f"{label}: {extracted_text}")
+                if extracted_text == "CJEmperor": #need to change if leader is different
+                    print(f"Team Leader found in '{label}'.")                    
+            else:
+                print(f"No text found in '{label}'.")
         else:
             print(f"Failed to capture '{label}'.")
-
-def print_mouse_coordinates():
-    """
-    Print real-time mouse coordinates to help define regions on the screen.
-    Use this tool to determine the (x, y) coordinates for regions of interest.
-    """
-    try:
-        print("Press CTRL+C to stop capturing mouse coordinates.")
-        while True:
-            x, y = pyautogui.position()
-            print(f"Mouse coordinates: ({x}, {y})")
-            time.sleep(1)  # Adjust the delay as needed
-    except KeyboardInterrupt:
-        print("Mouse coordinate capture stopped.")
 
 def main():
     """
@@ -107,11 +100,11 @@ def main():
     """
     if len(sys.argv) == 2:
         pid = int(sys.argv[1])
-        print(f"Monitoring game screen for PID {pid}")
+        #print(f"Monitoring game screen for PID {pid}")
 
         # Define regions for game elements (left, top, right, bottom relative to the window)
         game_regions = {
-            "Health Bar": (70, 40, 270, 90),
+            "Team Leader Bar": (380, 40, 380, 60),
         }
 
         # Monitor defined game regions
@@ -119,7 +112,6 @@ def main():
     else:
         print("Usage: python parse_game.py <PID>")
         print("To identify regions, use the mouse coordinate capture tool.")
-        print_mouse_coordinates()
 
 if __name__ == "__main__":
     main()
