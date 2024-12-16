@@ -6,6 +6,7 @@ import win32con
 import win32process
 import subprocess
 import time
+import pyautogui
 
 class CommandFive:
     def __init__(self, root):
@@ -94,26 +95,26 @@ class CommandFive:
                         if hwnd:
                             win32gui.SetForegroundWindow(hwnd)
                             #time.sleep(1)  # Wait for the window to be in the foreground
-                            for _ in range(3):  # Assuming there are at most 4 teammates to cycle through
+                            for _ in range(4):  # Assuming there are at most 4 teammates to cycle through
                                 process = subprocess.Popen(["python", "find_leader.py", str(teammate_pid)],
                                                  stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                                  text=True
                                 )
                                 stdout, stderr = process.communicate()
-                                #debug print
-                                #print(stdout)
-                                if "Team Leader Found" in stdout:
+                                if "Team Leader found" in stdout:
                                     print(f"Team Leader found for PID {teammate_pid}.")
                                     print(f"Sending 'p' key to window title: {window_title}")
-                                    win32api.SendMessage(hwnd, win32con.WM_KEYDOWN, ord('P'), 0)
-                                    win32api.SendMessage(hwnd, win32con.WM_KEYUP, ord('P'), 0)
+                                    pyautogui.press('p')
                                     break
                                 else:
                                     print(f"Team Leader not found for PID {teammate_pid}.")
                                     print("Cycling through teammates.")
-                                    win32api.SendMessage(hwnd, win32con.WM_KEYDOWN, win32con.VK_TAB, 0)
-                                    win32api.SendMessage(hwnd, win32con.WM_KEYUP, win32con.VK_TAB, 0)
+                                    pyautogui.press('tab')
                                     #time.sleep(1)  # Wait for the tab key to take effect
+                            else:
+                                continue  # Continue to the next teammate if the loop completes without breaking
+                            break  # Break the outer loop if the leader is found
+                            
 
         else:
             print("Please enter the Info PID.")

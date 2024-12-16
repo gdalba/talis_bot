@@ -42,7 +42,7 @@ def capture_region(pid, region):
     if window_handle and window_rect:
         # Bring the window to the foreground and wait for it to stabilize
         win32gui.SetForegroundWindow(window_handle)
-        time.sleep(2)
+        time.sleep(1)
 
         # Calculate absolute region coordinates
         left, top, _, _ = window_rect
