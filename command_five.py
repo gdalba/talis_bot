@@ -95,22 +95,30 @@ class CommandFive:
                         if hwnd:
                             win32gui.SetForegroundWindow(hwnd)
                             #time.sleep(1)  # Wait for the window to be in the foreground
-                            for _ in range(4):  # Assuming there are at most 4 teammates to cycle through
+                            #create a dictionary with pids and a true/false value for checked, and a true/false for leader found
+                            #if the pid is checked and leader found, skip it
+                            # Check if the leader is found for the current teammate
+                            checked_pids = {int(teammate_pid): False for teammate_pid in teammates if teammate_pid}
+                            for _ in range(len(checked_pids)):
+                                    
+                                if checked_pids[teammate_pid]:
+                                    continue  # Skip if already checked
+
+                                print(f"Checking for Team Leader for PID {teammate_pid}.")
                                 process = subprocess.Popen(["python", "find_leader.py", str(teammate_pid)],
-                                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                                 text=True
-                                )
+                                                        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                                        text=True)
                                 stdout, stderr = process.communicate()
                                 if "Team Leader found" in stdout:
                                     print(f"Team Leader found for PID {teammate_pid}.")
                                     print(f"Sending 'p' key to window title: {window_title}")
                                     pyautogui.press('p')
-                                    break
+                                    continue  # move on to the next teammate
                                 else:
                                     print(f"Team Leader not found for PID {teammate_pid}.")
                                     print("Cycling through teammates.")
-                                    pyautogui.press('tab')
-                                    #time.sleep(1)  # Wait for the tab key to take effect
+                                    pyautogui.press('tab')                                    
+                                    time.sleep(1)  # Wait for the tab key to take effect
                             else:
                                 continue  # Continue to the next teammate if the loop completes without breaking
                             break  # Break the outer loop if the leader is found
@@ -160,36 +168,26 @@ class CommandFive:
 
     def start_cmd(self):
         info_pid = self.info_pid_entry.get()
-        t1_pid = self.t1_pid_entry.get()
-        t2_pid = self.t2_pid_entry.get()
-        t3_pid = self.t3_pid_entry.get()
-        t4_pid = self.t4_pid_entry.get()
         cmd_key = self.key_cmd_entry.get()
         
-        if info_pid and t1_pid and t2_pid and t3_pid and t4_pid and cmd_key:
+        if info_pid and cmd_key:
             info_pid = int(info_pid)
-            t1_pid = int(t1_pid)
-            t2_pid = int(t2_pid)
-            t3_pid = int(t3_pid)
-            t4_pid = int(t4_pid)
             cmd_key = str(cmd_key)
             
             info_window_title = self.get_window_title(info_pid)
-            t1_window_title = self.get_window_title(t1_pid)
-            t2_window_title = self.get_window_title(t2_pid)
-            t3_window_title = self.get_window_title(t3_pid)
-            t4_window_title = self.get_window_title(t4_pid)
-            
             print(f"Info Window Title: {info_window_title}")
             
-            # Send the command to all teammates
-            for window_title in [t1_window_title, t2_window_title, t3_window_title, t4_window_title]:
-                print(f"Sending command '{cmd_key}' to window title: {window_title}")
-                subprocess.Popen(["python", "send_cmd_to_all.py", info_window_title, window_title, cmd_key])
+            teammate_pids = [self.t1_pid_entry.get(), self.t2_pid_entry.get(), self.t3_pid_entry.get(), self.t4_pid_entry.get()]
+            for teammate_pid in teammate_pids:
+                if teammate_pid:
+                    teammate_pid = int(teammate_pid)
+                    window_title = self.get_window_title(teammate_pid)
+                    print(f"Sending command '{cmd_key}' to window title: {window_title}")
+                    subprocess.Popen(["python", "send_cmd_to_all.py", info_window_title, window_title, cmd_key])
 
             print("Command sent.")
         else:
-            print("Please enter all PIDs and the command.")
+            print("Please enter the Info PID and the command.")
     
     def get_window_title(self, pid):
         def enum_windows_callback(hwnd, param):
