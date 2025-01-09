@@ -27,8 +27,12 @@ def send_cmd_to_all(info_title, command_title, cmd_key):
     info_hwnd = find_game_window_by_title(info_title)
     command_hwnd = find_game_window_by_title(command_title)
 
+    
     if info_hwnd and command_hwnd and cmd_key:
-        
+        if cmd_key == "p":
+            #press nonstop
+            while True:
+                send_key(command_hwnd, cmd_key)
         info = get_information_from_window(info_hwnd)
         print(f"Information from window: {info}")
         print(f"Sending command key '{cmd_key}' to window with handle '{command_hwnd}'.")

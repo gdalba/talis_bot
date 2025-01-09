@@ -49,20 +49,15 @@ class HealerApp:
 
     def start_healer(self):
         if self.process is None:
+            print("Healer started.")
             info_pid = self.info_pid_entry.get()
             command_pid = self.command_pid_entry.get()
-            heal_key = self.key_healing_entry.get()
-            if info_pid and command_pid and heal_key:
-                info_pid = int(info_pid)
-                command_pid = int(command_pid)
-                heal_key = str(heal_key)
-                info_window_title = self.get_window_title(info_pid)
-                command_window_title = self.get_window_title(command_pid)
-                self.process = subprocess.Popen(["python", "healer.py", str(info_pid), str(command_pid), heal_key])
-                self.update_info(info_window_title, command_window_title)
-                print("Healer started.")
-            else:
-                print("Please enter both Info PID and Command PID.")
+            key_healing = self.key_healing_entry.get()
+            info_window_title = self.get_window_title(info_pid)
+            command_window_title = self.get_window_title(command_pid)
+            self.process = subprocess.Popen(["python", "healer.py", str(info_pid), str(command_pid), key_healing])
+            self.info_label.config(text=f"Info Window Title: {info_window_title}\nCommand Window Title: {command_window_title}")
+        return
 
     def stop_healer(self):
         if self.process is not None:

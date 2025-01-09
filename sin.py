@@ -6,20 +6,20 @@ import time
 import sys
 from pynput.keyboard import Controller
 
-class Healer:
-    def __init__(self, info_pid, heal_key_1='6', heal_key_2='5', mana_key='9', heal_duration=15):
+class Sin:
+    def __init__(self, info_pid, sin_key_1='6', sin_key_2='5', heal_key='0', sin_duration=15):
         self.info_pid = info_pid
 
-        if heal_key_1.lower() != 'none':
-            print(f"Using heal key 1: {heal_key_1}")
-            self.heal_key_1 = heal_key_1  # First key in the routine (e.g., '6')
-        elif heal_key_1.lower() == 'none':
-            print("No heal key 1 provided.")
-            self.heal_key_1 = None
+        if sin_key_1.lower() != 'none':
+            print(f"Using sin key 1: {sin_key_1}")
+            self.sin_key_1 = sin_key_1  # First key in the routine (e.g., '6')
+        elif sin_key_1.lower() == 'none':
+            print("No sin key 1 provided.")
+            self.sin_key_1 = None
             
-        self.heal_key_2 = heal_key_2  # Second key in the routine (e.g., '5')
-        self.mana_key = mana_key
-        self.heal_duration = heal_duration  # Duration for the secondary key (e.g., 10-15 seconds)
+        self.sin_key_2 = sin_key_2  # Second key in the routine (e.g., '5')
+        self.heal_key = heal_key
+        self.sin_duration = sin_duration  # Duration for the secondary key (e.g., 10-15 seconds)
         self.info_hwnd = None
 
     def send_key(self, hwnd, key):
@@ -56,48 +56,48 @@ class Healer:
         if info_title:
             self.info_hwnd = self.find_game_window_by_title(info_title)
 
-    def start_healer(self):
-        """Runs the healing routine."""
+    def start_siner(self):
+        """Runs the sining routine."""
         self.setup_window()
         if self.info_hwnd:
-            #print(f"Starting healer for PID {self.info_pid} with routine keys '{self.heal_key_1}' and '{self.heal_key_2}'.")
+            #print(f"Starting siner for PID {self.info_pid} with routine keys '{self.sin_key_1}' and '{self.sin_key_2}'.")
             while True:
-                if self.heal_key_1:
-                # Press heal_key_1
-                    print(f"Pressing key '{self.heal_key_1}'.")
-                    self.send_key(self.info_hwnd, self.heal_key_1)
+                if self.sin_key_1:
+                # Press sin_key_1
+                    print(f"Pressing key '{self.sin_key_1}'.")
+                    self.send_key(self.info_hwnd, self.sin_key_1)
                     time.sleep(0.5)
 
-                print(f"Pressing mana key '{self.mana_key}'.")
-                self.send_key(self.info_hwnd, self.mana_key)
+                print(f"Pressing heal key '{self.heal_key}'.")
+                self.send_key(self.info_hwnd, self.heal_key)
                 time.sleep(0.5)
 
-                # Press heal_key_2 for the specified duration
-                print(f"Pressing key '{self.heal_key_2}' for {self.heal_duration} seconds.")
-                end_time = time.time() + self.heal_duration
+                # Press sin_key_2 for the specified duration
+                print(f"Pressing key '{self.sin_key_2}' for {self.sin_duration} seconds.")
+                end_time = time.time() + self.sin_duration
                 while time.time() < end_time:
-                    self.send_key(self.info_hwnd, self.heal_key_2)
+                    self.send_key(self.info_hwnd, self.sin_key_2)
                     time.sleep(0.5)  # Adjust repeat frequency if necessary
 
-                # Return to heal_key_1
-                #print(f"Returning to key '{self.heal_key_1}'.")
-                if not self.heal_key_1:
+                # Return to sin_key_1
+                #print(f"Returning to key '{self.sin_key_1}'.")
+                if not self.sin_key_1:
                     continue
                 else:
-                    self.send_key(self.info_hwnd, self.heal_key_1) # Return to heal_key_1
+                    self.send_key(self.info_hwnd, self.sin_key_1) # Return to sin_key_1
                     time.sleep(0.5) 
         else:
             print("Exiting: No valid game window found.")
 
 if __name__ == "__main__":
     if len(sys.argv) != 5:
-        print("Usage: python healer.py <info_pid> <heal_key_1> <heal_key_2> <mana_key>")
+        print("Usage: python siner.py <info_pid> <sin_key_1> <sin_key_2> <heal_key>")
         sys.exit(1)
 
     info_pid = int(sys.argv[1])
-    heal_key_1 = str(sys.argv[2])  # First key in the routine (e.g., '6')
-    heal_key_2 = str(sys.argv[3])  # Second key in the routine (e.g., '5')
-    mana_key = str(sys.argv[4])  # Key to check for mana (e.g., '7')
+    sin_key_1 = str(sys.argv[2])  # First key in the routine (e.g., '6')
+    sin_key_2 = str(sys.argv[3])  # Second key in the routine (e.g., '5')
+    heal_key = str(sys.argv[4])  # Key to check for mana (e.g., '7')
 
-    healer = Healer(info_pid=info_pid, heal_key_1=heal_key_1, heal_key_2=heal_key_2, mana_key=mana_key, heal_duration=15)
-    healer.start_healer()
+    sin = Sin(info_pid=info_pid, sin_key_1=sin_key_1, sin_key_2=sin_key_2, heal_key=heal_key, sin_duration=15)
+    sin.start_siner()
