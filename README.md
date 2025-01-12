@@ -1,13 +1,12 @@
 # Talisman Script for fun
 
-This application allows you to control a healer character in a game by sending commands based on information retrieved from another game window.
-
+This app allows you to control up to 3 healers, 1 monk, and 2 wizards through intuitive input clicks.
 ## Prerequisites
 
 Before you begin, ensure you have met the following requirements:
 
 - You have installed Python 3.x.
-- You have installed the required Python packages.
+- You have installed the required Python packages from requirements.txt.
 - You are using a Windows operating system (required for `win32api` and `win32gui`).
 
 ## Installation
@@ -27,8 +26,8 @@ Before you begin, ensure you have met the following requirements:
 
     Ensure your `requirements.txt` includes the following packages:
 
-    ```txt
-    MouseInfo==0.1.3
+    ```
+    txtMouseInfo==0.1.3
     packaging==24.2
     pillow==11.0.0
     psutil==6.1.0
@@ -43,11 +42,12 @@ Before you begin, ensure you have met the following requirements:
     pytweening==1.2.0
     pywin32==308
     six==1.17.0
+    ttkbootstrap==1.10.1
     ```
 
 3. **Set up your environment:**
 
-    I recommend creating a conda environment for this. currently using "talis"
+    I recommend creating a conda environment for this. Currently using "talis"
     ```sh
     conda activate talis
     ```
@@ -63,42 +63,39 @@ Before you begin, ensure you have met the following requirements:
 
     This will open the bot application window.
 
-2. **Enter the required information:**
+2. **What every UI element means:**
 
-    - **Info PID (main char):** The PID of the main character's game window.
-    - **Teammates 1 tp 4:** The PID of teammamtes.
-    - **Command to send (healer):** The key command to send to the healer's game window.
+    - `**Info PID (main char):**` The PID of the main character's game window. Usually for the tank of the team.
+    - `**Teammates 1 to 4:**` The PID of teammates.
+    - `**Command to send (all):**` The key command to send to all game window. For instance, I set 'k' to be mount, every open client then mounts at the same time.
+    - `**Healer PIDs (1 to 3):**` Where you will identify the clients of your healer characters. Note that you do not need to have 3 healer clients open/identified.
+    - `**Monk PID**` Where you will identify the client of your monk character
+    - `**Wizard PIDs (1 to 2):**` Where you will identify the clients of your wizard characters.
+    - `**Healing key 1 (regen/shield/none):**` Recommended to identify shields, regen heal, or none for pure repeat healing command. Defaults to 6.
+    - `**Healing key 2 (main heal):**` Required for the main heal. Defaults to 5.
+    - `**Mana Regeneration key:**` Required for mana regeneration. Defaults to 9.
+    - `**Start Healer:**` Starts the healing routine, on click stops for all identified healers.
+    - `**Start Monk:**` Starts monk routine, on click stops.
+    - `**Start follow:**` Starts follow routine for every identified teammate (1 to 4). Note that you must manually identify target to be followed.
+    - `**Start BOSSwiz:**` Starts wizard DPS routine, on click stops for all identified wizards.
+    - `**Start AOEwiz:**` Starts multiple mobs AOE routine, on click stops for all identified wizards.
+    - `**Refresh PIDs:**` If you close/open new clients, clicking on this button will update the list of clients at the bottom of the applcation.
+    - `**Mount:**` Alternate default mount button (using 'k' as default key).
 
-3. **Start the healer:**
+3. **Detected PIDs (client.exe):**
 
-    Click the "Start Healer" button to start sending commands to the healer's game window based on the information retrieved from the main character's game window.
-
-4. **Stop the healer:**
-
-    Click the "Stop Healer" button to stop sending commands.
+    Talisman Online runs through client.exe applications. When you run command_five.py, you will automatically receive a list of open client.exe. You can then assign directly through that list to the respective elements (for instance, choosing 'H1' to 'PID 35516' will assign that client to the 'healer PID 1' tab.
 
 ## File Structure
 
-- `script.py`: The main application script that provides the GUI and starts/stops the healer process.
+- `command_five.py`: The main application script that provides the GUI and offers control to all options.
 - `healer.py`: The script that retrieves information from the game windows and sends commands to the healer's game window.
-
-## Functions
-
-### script.py
-
-- [HealerApp.__init__(self, root)](http://_vscodecontentref_/0): Initializes the application window.
-- [HealerApp.start_healer(self)](http://_vscodecontentref_/1): Starts the healer process.
-- [HealerApp.stop_healer(self)](http://_vscodecontentref_/2): Stops the healer process.
-- [HealerApp.update_info(self, info_window_title, command_window_title)](http://_vscodecontentref_/3): Updates the information labels in the application window.
-- [HealerApp.get_window_title(self, pid)](http://_vscodecontentref_/4): Retrieves the window title for a given PID.
-
-### healer.py
-
-- [send_key(hwnd, key)](http://_vscodecontentref_/5): Sends a key command to a window.
-- [find_game_window_title_by_pid(pid)](http://_vscodecontentref_/6): Finds the window title for a given PID.
-- [find_game_window_by_title(title)](http://_vscodecontentref_/7): Finds the window handle for a given window title.
-- [get_information_from_window(hwnd)](http://_vscodecontentref_/8): Retrieves information from a window.
-- [monitor_health_and_heal(info_pid, command_pid, heal_key)](http://_vscodecontentref_/9): Monitors the health of the main character and sends heal commands to the healer.
+- `AOEwiz.py`: AOE routine for wizard.
+- `BOSSwiz.py`: Single target routine for wizard.
+- `monk.py`: Tank routine.
+- `send_cmd_to_all.py`: Controls the distribution of single key commands.
+- `sin.py`: [NOT IMPLEMENTED] controls Assassin routine.
+-  `find_leader.py`: [NOT USED] Automatically finds main character PID to follow-  
 
 ## Contributing
 
@@ -112,8 +109,4 @@ To contribute to this project, follow these steps:
 
 ## License
 
-This project is licensed under the MIT License. See the LICENSE file for details.
-
-## Contact
-
-If you have any questions or suggestions, feel free to open an issue or contact the project maintainer at [your-email@example.com].
+No license lmfao.
