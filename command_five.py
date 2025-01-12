@@ -107,7 +107,12 @@ class CommandFive:
         wiz_2_pid_label = tk.Label(healer_frame, text="Wizard PID 2")
         wiz_2_pid_label.grid(row=3, column=2, padx=5, pady=5, sticky="w")
         self.wiz_2_pid_entry = tk.Entry(healer_frame)
-        self.wiz_2_pid_entry.grid(row=3, column=3, padx=5, pady=5)       
+        self.wiz_2_pid_entry.grid(row=3, column=3, padx=5, pady=5)
+
+        sin_pid_label = tk.Label(healer_frame, text="Sin PID")
+        sin_pid_label.grid(row=4, column=2, padx=5, pady=5, sticky="w")
+        self.sin_pid_entry = tk.Entry(healer_frame)
+        self.sin_pid_entry.grid(row=4, column=3, padx=5, pady=5)       
 
 
         # Healing Key 1
@@ -159,6 +164,15 @@ class CommandFive:
         )        
         self.monk_toggle.pack(side=tk.LEFT, pady=5)
 
+        self.is_sin = False
+        self.sin_toggle = ttk.Button(
+            healing_toggle_frame, 
+            text="Start Sin", 
+            bootstyle="success", 
+            command=self.toggle_sin
+        )
+        self.sin_toggle.pack(side=tk.LEFT, pady=5)
+
         self.is_following = False
         self.follow_toggle = ttk.Button(
             healing_toggle_frame, 
@@ -204,6 +218,7 @@ class CommandFive:
         
         self.pid_list_text = tk.Text(root, height=10, width=50)
         self.pid_list_text.pack(pady=10)
+
         
         self.process = None
         
@@ -217,6 +232,7 @@ class CommandFive:
         self.follow_processes = None
         self.AOEwiz_processes = []        
         self.BOSSwiz_processes = []
+        self.sin_process = None
 
     def toggle_healer(self):
          # Toggle the healing state
@@ -275,6 +291,17 @@ class CommandFive:
         else:
             self.BOSSwiz_toggle.config(text="Start BOSSwiz", bootstyle="success")
             self.stop_BOSSwiz()
+
+    def toggle_sin(self):
+        self.is_sin = not self.is_sin
+
+        # Update button text and style dynamically
+        if self.is_sin:
+            self.sin_toggle.config(text="Stop Sin", bootstyle="danger")
+            self.start_sin()
+        else:
+            self.sin_toggle.config(text="Start Sin", bootstyle="success")
+            self.stop_sin()
 
     def start_monk(self):
         monk_pid = self.monk_pid_entry.get()
@@ -395,6 +422,31 @@ class CommandFive:
         else:
             print("No healer processes are running.")
 
+    def start_sin(self):
+        sin_pid = self.sin_pid_entry.get()
+        if sin_pid:
+            try:
+                self.sin_process = subprocess.Popen(
+                    ["python", "sin.py", sin_pid],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True
+                )
+                print(f"Started sin for PID {sin_pid}.")
+            except Exception as e:
+                print(f"Error starting sin: {e}")
+
+    def stop_sin(self):
+        if self.sin_process:
+            try:
+                os.kill(self.sin_process.pid, signal.SIGTERM)
+                print(f"Sin with PID {self.sin_process.pid} stopped.")
+            except Exception as e:
+                print(f"Error stopping sin with PID {self.sin_process.pid}: {e}")
+            self.sin_process = None
+        else:
+            print("No sin process is running.")
+            
     def start_AOEwiz(self):
         self.AOEwiz_processes = []
         wiz1_pid = self.wiz_1_pid_entry.get()
@@ -598,43 +650,6 @@ class CommandFive:
         else:
             print("Please enter the Info PID.")
 
-    '''def refresh_pid_list(self):
-        # Clear previous widgets from the PID list section
-        for widget in self.pid_list_text.winfo_children():
-            widget.destroy()
-
-        # Get all PIDs for processes named 'client.exe'
-        pid_name_pairs = []
-        for proc in psutil.process_iter():
-            try:
-                pinfo = proc.as_dict(attrs=['pid', 'name'])
-                if pinfo['name'].lower() == 'client.exe':
-                    window_title = self.get_window_title(pinfo['pid'])
-                    pid_name_pairs.append((pinfo['pid'], window_title))
-            except psutil.NoSuchProcess:
-                pass
-
-        # Display PIDs and add buttons
-        if pid_name_pairs:
-            for pid, window_title in pid_name_pairs:
-                frame = tk.Frame(self.pid_list_text)
-                frame.pack(anchor="w", pady=2, padx=5)
-
-                label = tk.Label(frame, text=f"PID: {pid}, Window Title: {window_title}")
-                label.pack(side="left", padx=5)
-
-                # Buttons to assign PIDs to entry fields
-                ttk.Button(frame, text="Set as Info", command=lambda p=pid: self.info_pid_entry.insert(0, p)).pack(side="left", padx=5)
-                ttk.Button(frame, text="Set as T1", command=lambda p=pid: self.t1_pid_entry.insert(0, p)).pack(side="left", padx=5)
-                ttk.Button(frame, text="Set as T2", command=lambda p=pid: self.t2_pid_entry.insert(0, p)).pack(side="left", padx=5)
-                ttk.Button(frame, text="Set as T3", command=lambda p=pid: self.t3_pid_entry.insert(0, p)).pack(side="left", padx=5)
-                ttk.Button(frame, text="Set as T4", command=lambda p=pid: self.t4_pid_entry.insert(0, p)).pack(side="left", padx=5)
-                ttk.Button(frame, text="Set as H1", command=lambda p=pid: self.healer_1_pid_entry.insert(0, p)).pack(side="left", padx=5)
-                ttk.Button(frame, text="Set as H2", command=lambda p=pid: self.healer_2_pid_entry.insert(0, p)).pack(side="left", padx=5)
-                ttk.Button(frame, text="Set as Monk", command=lambda p=pid: self.monk_pid_entry.insert(0, p)).pack(side="left", padx=5)
-        else:
-            tk.Label(self.pid_list_text, text="No processes found for client.exe.").pack(anchor="w", pady=5, padx=5)'''
-
     def refresh_pid_list(self):
         # Clear previous widgets from the PID list section
         for widget in self.pid_list_text.winfo_children():
@@ -674,7 +689,7 @@ class CommandFive:
                 role_combo.grid(row=row, column=1, padx=5, pady=5)
 
                 # Dropdown for additional actions
-                action_options = ["Set as H1", "Set as H2", "Set as H3", "Set as Monk", "Set as W1", "Set as W2"]
+                action_options = ["Set as H1", "Set as H2", "Set as H3", "Set as Monk", "Set as W1", "Set as W2", "Set as Sin"]
                 action_combo = ttk.Combobox(self.pid_list_text, state="readonly", values=action_options, width=18)
                 action_combo.grid(row=row, column=2, padx=5, pady=5)
 
@@ -725,6 +740,9 @@ class CommandFive:
         elif action == "Set as Monk":
             self.monk_pid_entry.delete(0, tk.END)
             self.monk_pid_entry.insert(0, pid)
+        elif action == "Set as Sin":
+            self.sin_pid_entry.delete(0, tk.END)
+            self.sin_pid_entry.insert(0, pid)
 
     def start_k_cmd(self):
         info_pid = self.info_pid_entry.get()

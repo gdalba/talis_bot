@@ -82,7 +82,7 @@ def monitor_game_elements(pid, regions):
         print(f"Capturing '{label}'... for PID {pid}")
         screenshot = capture_region(pid, region)
         if screenshot:
-            #screenshot.show()  # Display the screenshot for debugging
+            screenshot.show()  # Display the screenshot for debugging
             extracted_text = extract_text_from_image(screenshot)
             if extracted_text:
                 print(f"{label}: {extracted_text}")
@@ -105,6 +105,7 @@ def main():
         # Define regions for game elements (left, top, right, bottom relative to the window)
         game_regions = {
             "Team Leader Bar": (380, 40, 380, 60),
+            
         }
 
         # Monitor defined game regions

@@ -56,14 +56,14 @@ class Sin:
         if info_title:
             self.info_hwnd = self.find_game_window_by_title(info_title)
 
-    def start_siner(self):
-        """Runs the sining routine."""
+    def start_sin(self):
+        """Runs the sin routine."""
         self.setup_window()
         if self.info_hwnd:
-            #print(f"Starting siner for PID {self.info_pid} with routine keys '{self.sin_key_1}' and '{self.sin_key_2}'.")
+            print(f"Starting sin for PID {self.info_pid}.")
             while True:
                 if self.sin_key_1:
-                # Press sin_key_1
+                    # Press sin_key_1
                     print(f"Pressing key '{self.sin_key_1}'.")
                     self.send_key(self.info_hwnd, self.sin_key_1)
                     time.sleep(0.5)
@@ -80,24 +80,20 @@ class Sin:
                     time.sleep(0.5)  # Adjust repeat frequency if necessary
 
                 # Return to sin_key_1
-                #print(f"Returning to key '{self.sin_key_1}'.")
                 if not self.sin_key_1:
                     continue
                 else:
-                    self.send_key(self.info_hwnd, self.sin_key_1) # Return to sin_key_1
-                    time.sleep(0.5) 
+                    self.send_key(self.info_hwnd, self.sin_key_1)  # Return to sin_key_1
+                    time.sleep(0.5)
         else:
             print("Exiting: No valid game window found.")
 
 if __name__ == "__main__":
-    if len(sys.argv) != 5:
-        print("Usage: python siner.py <info_pid> <sin_key_1> <sin_key_2> <heal_key>")
+    if len(sys.argv) != 2:
+        print("Usage: python sin.py <info_pid>")
         sys.exit(1)
 
     info_pid = int(sys.argv[1])
-    sin_key_1 = str(sys.argv[2])  # First key in the routine (e.g., '6')
-    sin_key_2 = str(sys.argv[3])  # Second key in the routine (e.g., '5')
-    heal_key = str(sys.argv[4])  # Key to check for mana (e.g., '7')
 
-    sin = Sin(info_pid=info_pid, sin_key_1=sin_key_1, sin_key_2=sin_key_2, heal_key=heal_key, sin_duration=15)
-    sin.start_siner()
+    sin = Sin(info_pid=info_pid, sin_key_1='3', sin_key_2='3', heal_key='0', sin_duration=15)
+    sin.start_sin()
