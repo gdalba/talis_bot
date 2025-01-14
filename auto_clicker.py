@@ -3,6 +3,7 @@ from mouse import get_game_hwnd, left, right
 import pygetwindow
 import win32api
 import win32con
+from command_five import CommandFive
 
 
 leader_hwnd = None
@@ -16,6 +17,10 @@ teammate_3_title = None
 teammate_4_hwnd = None
 teammate_4_title = None
 
+main_script = CommandFive()
+'''
+main_script.start_monk() << to call from class, instance every time
+'''
 
 # Define a list of specific clicks with their coordinates
 clicks = [
@@ -122,13 +127,31 @@ def define_teammates():
     #for hwnd, title in window_info:
     #    print(f"HWND: {hwnd}, Title: {title}") 
 
-    teammates = {
+    
+    teammates_bkp = {
         "Leader": "monkito - Bot Master",
         "Teammate 1": "CJShy - Bot Master",
         "Teammate 2": "CJSky - Bot Master",
         "Teammate 3": "CJStar - Bot Master",
         "Teammate 4": "CjSpace - Bot Master"
     }
+
+    # Detect and assign roles based on window titles
+    titles = [info[1] for info in window_info]
+    teammates = {}
+    
+    if titles:
+        # First window becomes leader
+        teammates["Leader"] = titles[0]
+        
+        # Rest become teammates
+        for i, title in enumerate(titles[1:], 1):
+            if i <= 4:  # Limit to 4 teammates
+                teammates[f"Teammate {i}"] = title
+    
+    if not teammates:
+        print("No Bot Master windows found!")
+        return
 
     window_handles = {}  # Dictionary to store hwnd and titles
 
@@ -150,7 +173,8 @@ def define_teammates():
     else:
         print("Some game windows were not found.")
 
-    
+    '''
+    IF BELOW DOESN'T WORK, UNCOMMENT    
     leader_hwnd = window_handles.get("Leader", {}).get("hwnd")
     leader_title = window_handles.get("Leader", {}).get("title")
     teammate_1_hwnd = window_handles.get("Teammate 1", {}).get("hwnd")
@@ -161,7 +185,17 @@ def define_teammates():
     teammate_3_title = window_handles.get("Teammate 3", {}).get("title")
     teammate_4_hwnd = window_handles.get("Teammate 4", {}).get("hwnd")
     teammate_4_title = window_handles.get("Teammate 4", {}).get("title")
+    '''
 
+    # Assign leader first
+    leader_hwnd = window_handles.get("Leader", {}).get("hwnd")
+    leader_title = window_handles.get("Leader", {}).get("title")
+
+    # Dynamically assign teammates based on available windows
+    for i in range(1, len(window_handles)):
+        teammate_key = f"Teammate {i}"
+        globals()[f"teammate_{i}_hwnd"] = window_handles.get(teammate_key, {}).get("hwnd")
+        globals()[f"teammate_{i}_title"] = window_handles.get(teammate_key, {}).get("title")
 
 
 def cwc():      
@@ -170,6 +204,8 @@ def cwc():
     send_key(leader_hwnd, 'f')
 
     # Define team coordinates
+    '''
+    # IF BELOW DOESN'T WORK, UNCOMMENT
     team_coords = [
         {"member_hwnd": teammate_1_hwnd, "member_title": teammate_1_title, "right_click": (577, 245), "invite_click": (597, 290)},
         {"member_hwnd": teammate_2_hwnd, "member_title": teammate_2_title, "right_click": (577, 255), "invite_click": (597, 300)},
@@ -183,6 +219,38 @@ def cwc():
         {"member_hwnd": teammate_3_hwnd, "member_title": teammate_3_title, "right_click": (577, 265), "invite_click": (597, 310)},
         {"member_hwnd": teammate_4_hwnd, "member_title": teammate_4_title, "right_click": (577, 285), "invite_click": (597, 330)}
     ]
+    '''
+    # Create dynamic team coordinates based on available windows
+    team_coords = []
+    team_coords_and_leader = []
+    base_right_click_y = 245
+    base_invite_click_y = 290
+    y_increment = 10
+
+    # First add leader to team_coords_and_leader
+    if leader_hwnd and leader_title:
+        team_coords_and_leader.append({
+            "member_hwnd": leader_hwnd,
+            "member_title": leader_title,
+            "right_click": (577, base_right_click_y),
+            "invite_click": (597, base_invite_click_y)
+        })
+
+    # Add teammates dynamically based on available windows
+    for i in range(1, 5):
+        teammate_hwnd = globals().get(f"teammate_{i}_hwnd")
+        teammate_title = globals().get(f"teammate_{i}_title")
+        
+        if teammate_hwnd and teammate_title:
+            member_data = {
+                "member_hwnd": teammate_hwnd,
+                "member_title": teammate_title,
+                "right_click": (577, base_right_click_y + (i * y_increment)),
+                "invite_click": (597, base_invite_click_y + (i * y_increment))
+            }
+            team_coords.append(member_data)
+            team_coords_and_leader.append(member_data)
+
 
     # Common accept coordinates for all team members
     accept_coords = (658, 400)
@@ -231,6 +299,13 @@ def cwc():
         # Enter CWC
         left(member["member_hwnd"], 339, 380)
         sleep(1)
+
+    for member in team_coords_and_leader:
+        print(f"Resetting view for member {member['member_hwnd']} ({member['member_title']})")
+        left(member["member_hwnd"], 1280, 48)
+        sleep(1)
+
+        sleep(1)  # Pause between blocks
 
     '''
     CONTINUE HERE!!!!!!!!!!
