@@ -65,22 +65,22 @@ Before you begin, ensure you have met the following requirements:
 
 2. **What every UI element means:**
 
-    - `**Info PID (main char):**` The PID of the main character's game window. Usually for the tank of the team.
-    - `**Teammates 1 to 4:**` The PID of teammates.
-    - `**Command to send (all):**` The key command to send to all game window. For instance, I set 'k' to be mount, every open client then mounts at the same time.
-    - `**Healer PIDs (1 to 3):**` Where you will identify the clients of your healer characters. Note that you do not need to have 3 healer clients open/identified.
-    - `**Monk PID**` Where you will identify the client of your monk character
-    - `**Wizard PIDs (1 to 2):**` Where you will identify the clients of your wizard characters.
-    - `**Healing key 1 (regen/shield/none):**` Recommended to identify shields, regen heal, or none for pure repeat healing command. Defaults to 6.
-    - `**Healing key 2 (main heal):**` Required for the main heal. Defaults to 5.
-    - `**Mana Regeneration key:**` Required for mana regeneration. Defaults to 9.
-    - `**Start Healer:**` Starts the healing routine, on click stops for all identified healers.
-    - `**Start Monk:**` Starts monk routine, on click stops.
-    - `**Start follow:**` Starts follow routine for every identified teammate (1 to 4). Note that you must manually identify target to be followed.
-    - `**Start BOSSwiz:**` Starts wizard DPS routine, on click stops for all identified wizards.
-    - `**Start AOEwiz:**` Starts multiple mobs AOE routine, on click stops for all identified wizards.
-    - `**Refresh PIDs:**` If you close/open new clients, clicking on this button will update the list of clients at the bottom of the applcation.
-    - `**Mount:**` Alternate default mount button (using 'k' as default key).
+    - `Info PID (main char):` The PID of the main character's game window. Usually for the tank of the team.
+    - `Teammates 1 to 4:` The PID of teammates.
+    - `Command to send (all):` The key command to send to all game window. For instance, I set 'k' to be mount, every open client then mounts at the same time.
+    - `Healer PIDs (1 to 3):` Where you will identify the clients of your healer characters. Note that you do not need to have 3 healer clients open/identified.
+    - `Monk PID` Where you will identify the client of your monk character
+    - `Wizard PIDs (1 to 2):` Where you will identify the clients of your wizard characters.
+    - `Healing key 1 (regen/shield/none):` Recommended to identify shields, regen heal, or none for pure repeat healing command. Defaults to 6.
+    - `Healing key 2 (main heal):` Required for the main heal. Defaults to 5.
+    - `Mana Regeneration key:` Required for mana regeneration. Defaults to 9.
+    - `Start Healer:` Starts the healing routine, on click stops for all identified healers.
+    - `Start Monk:` Starts monk routine, on click stops.
+    - `Start follow:` Starts follow routine for every identified teammate (1 to 4). Note that you must manually identify target to be followed.
+    - `Start BOSSwiz:` Starts wizard DPS routine, on click stops for all identified wizards.
+    - `Start AOEwiz:` Starts multiple mobs AOE routine, on click stops for all identified wizards.
+    - `Refresh PIDs:` If you close/open new clients, clicking on this button will update the list of clients at the bottom of the applcation.
+    - `Mount:` Alternate default mount button (using 'k' as default key).
 
 3. **Detected PIDs (client.exe):**
 
