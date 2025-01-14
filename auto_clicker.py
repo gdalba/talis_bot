@@ -241,30 +241,6 @@ def cwc():
     #(719, 50, 0), #cwc entry (view reset)
     #(719, 50, 1), #cwc open menu
     #(318, 418, 0) #cwc enter
-        '''
-        for clicks in routine_clicks:
-            x, y, click_type = clicks
-            if click_type == 0:
-                print(f"Clicking at ({x}, {y})")
-                left(member["member_hwnd"], x, y)
-                sleep(1)
-            elif click_type == 1:
-                print(f"Clicking at ({x}, {y})")
-                right(member["member_hwnd"], x, y)
-                sleep(1)
-        '''
-
-
-
-
-
-
-'''    print(f"Game window handle: {hwnd}")
-    # Execute the clicks on the game window
-    for x, y in clicks:
-        print(f"Clicking at ({x}, {y})")
-        left(hwnd, x, y)
-        sleep(1)  # Add a delay between clicks if needed'''
 
 def main():    
     #choose the mode

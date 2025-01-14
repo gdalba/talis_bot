@@ -4,6 +4,7 @@ import win32gui
 import time
 import sys
 from pynput.keyboard import Controller
+from mouse import left, right
 
 keyboard = Controller()
 
@@ -30,6 +31,8 @@ def send_cmd_to_all(info_title, command_title, cmd_key):
     
     if info_hwnd and command_hwnd and cmd_key:
         if cmd_key == "p":
+            #automatically find the leader
+            left(command_hwnd, 30, 190)
             #press nonstop
             while True:
                 send_key(command_hwnd, cmd_key)
