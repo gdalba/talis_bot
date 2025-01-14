@@ -6,7 +6,7 @@ This app allows you to control up to 3 healers, 1 monk, and 2 wizards through in
 Before you begin, ensure you have met the following requirements:
 
 - You have installed Python 3.x.
-- You have installed the required Python packages from requirements.txt.
+- You have installed the required Python packages from requirements.txt. This set of scripts have tesseract as a requirement, installing it is not as intuitive, so either manually skim over every script and delete tesseract-related command, or install it.
 - You are using a Windows operating system (required for `win32api` and `win32gui`).
 
 ## Installation
@@ -95,7 +95,10 @@ Before you begin, ensure you have met the following requirements:
 - `monk.py`: Tank routine.
 - `send_cmd_to_all.py`: Controls the distribution of single key commands.
 - `sin.py`: [NOT IMPLEMENTED] controls Assassin routine.
--  `find_leader.py`: [NOT USED] Automatically finds main character PID to follow-  
+-  `find_leader.py`: [NOT USED] Automatically finds main character PID to follow.
+-  `mouse_tracker.py`: use it manually running `python mouse_tracker.py` to track absolute coordinates of the screen, or relative to initial point (where the mouse started).
+-  `auto_clicker.py`: [WIP] This script currently has four modes: 1. Auto Clicker - tests based on given list of x,y coordinates; 2. Debug mode - allows you to provide as many x, y coordinates (one by one) and execute mouse left click; 3. Routine mode - to implement standard routines of commands; and 4. cwc - current WIP of a automatic bot for 5 clients to run through CWC.
+-  `mouse.py`: Not my work, all credit goes to Tonirogerion (TonyR0XX) for providing the script. All I did was make it find window handle (hwnd) automatically.
 
 ## Contributing
 
