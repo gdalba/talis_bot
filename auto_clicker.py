@@ -4,7 +4,7 @@ import pygetwindow
 import win32api
 import win32con
 from command_five import CommandFive
-
+import tkinter as tk
 
 leader_hwnd = None
 leader_title = None
@@ -17,7 +17,9 @@ teammate_3_title = None
 teammate_4_hwnd = None
 teammate_4_title = None
 
-main_script = CommandFive()
+root = tk.Tk()
+root.withdraw()
+main_script = CommandFive(root)
 '''
 main_script.start_monk() << to call from class, instance every time
 '''
@@ -153,6 +155,9 @@ def define_teammates():
         print("No Bot Master windows found!")
         return
 
+    print("Teammates:")
+    for role, title in teammates.items():
+        print(f"{role}: {title}")
     window_handles = {}  # Dictionary to store hwnd and titles
 
     for x, j in window_info:
@@ -281,6 +286,7 @@ def cwc():
 
     for member in team_coords_and_leader:
         # Reset view
+
         print(f"Resetting view for member {member['member_hwnd']} ({member['member_title']})")
         left(member["member_hwnd"], 1280, 48)
         sleep(1)
@@ -288,19 +294,31 @@ def cwc():
         sleep(1)  # Pause between blocks
 
         # Open CWC menu
-        print(f"Opening CWC menu for member {member['member_hwnd']} ({member['member_title']})")
-        right(member["member_hwnd"], 719, 50)
-        sleep(1)
+        for i in range(2):
+            cwc_entry_coordx = 719
+            cwc_entry_coordy = 150
+            
+            print(f"Opening CWC menu for member {member['member_hwnd']} ({member['member_title']})")
+            import random            
+            
+            gamma = random.randint(0, 50)
+            right(member["member_hwnd"], cwc_entry_coordx, cwc_entry_coordy)
+            sleep(0.25)
+            right(member["member_hwnd"], cwc_entry_coordx + gamma, cwc_entry_coordy + gamma)
+            
 
-        sleep(1)  # Pause between blocks
+
+        sleep(2)  # Pause between blocks
 
     for member in team_coords_and_leader:
+        
         print(f"Entering CWC for member {member['member_hwnd']} ({member['member_title']})")
         # Enter CWC
         left(member["member_hwnd"], 339, 380)
         sleep(1)
 
     for member in team_coords_and_leader:
+    
         print(f"Resetting view for member {member['member_hwnd']} ({member['member_title']})")
         left(member["member_hwnd"], 1280, 48)
         sleep(1)
@@ -309,8 +327,59 @@ def cwc():
 
     '''
     CONTINUE HERE!!!!!!!!!!
+    at this point, should be in x725, y506
     '''
+    #next = walk forward until near first boss
+    for member in team_coords_and_leader:
+        print(f"Centering member {member['member_hwnd']} ({member['member_title']})")
+        left(member["member_hwnd"], 730, 501)
+        sleep(1)
 
+    '''
+    We will create a list of x,y coordinates until first boss
+    Then execute from Command five a list of killing boss tasks
+    Must check if boss has been selected, so we will add a "read the boss name" task, confirming before attacking
+    
+    300,300
+    300,500
+    300,600
+    300,500
+    300,500
+    300,500
+    400,500
+
+    '''
+    
+    #IMPLEMENT FOLLOW ROUTINE FOR ALL BUT LEADER
+    
+    for member in team_coords_and_leader:
+        if member["member_title"] == leader_title:
+            left(member["member_hwnd"], 300, 300)
+            print(f"Moving to 300,300")
+            sleep(3)
+            left(member["member_hwnd"], 300, 500)
+            print(f"Moving to 300,500")
+            sleep(3)
+            left(member["member_hwnd"], 300, 600)
+            print(f"Moving to 300,600")
+            sleep(3)
+            left(member["member_hwnd"], 300, 500)
+            print(f"Moving to 300,500")
+            sleep(3)
+            left(member["member_hwnd"], 300, 500)
+            print(f"Moving to 300,500")
+            sleep(3)
+            left(member["member_hwnd"], 300, 500)
+            print(f"Moving to 300,500")
+            sleep(3)
+            left(member["member_hwnd"], 400, 500)
+            print(f"Moving to 400,500")
+            sleep(3)
+            left(member["member_hwnd"], 400, 300)
+            print(f"Moving to 400,300")
+            
+            print(f"Arrived at first boss! Cleaning mobs...")
+        
 
     #(1280, 48, 0), #reset view
     #(719, 50, 0), #cwc entry (view reset)
