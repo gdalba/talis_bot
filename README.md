@@ -1,6 +1,9 @@
 # Talisman Script for fun v1.0
 
 This app allows you to control up to 3 healers, 1 monk, and 2 wizards through intuitive input clicks.
+
+![Interface](static/Screenshot 2025-06-22 210006.png)
+
 ## Prerequisites
 
 Before you begin, ensure you have met the following requirements:

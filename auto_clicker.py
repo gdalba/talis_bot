@@ -5,6 +5,13 @@ import win32api
 import win32con
 from command_five import CommandFive
 import tkinter as tk
+import cv2
+import numpy as np
+import pyautogui
+from PIL import ImageGrab
+import win32gui
+import random
+import os
 
 leader_hwnd = None
 leader_title = None
@@ -17,9 +24,9 @@ teammate_3_title = None
 teammate_4_hwnd = None
 teammate_4_title = None
 
-root = tk.Tk()
-root.withdraw()
-main_script = CommandFive(root)
+#root = tk.Tk()
+#root.withdraw()
+#main_script = CommandFive(root)
 '''
 main_script.start_monk() << to call from class, instance every time
 '''
@@ -37,6 +44,12 @@ routine_clicks = [
     (719, 50, 1), #cwc open menu
     (318, 418, 0) #cwc enter
 ]
+
+
+
+
+
+
 
 
 def testing_clicker():
@@ -82,6 +95,7 @@ def debug_mode():
         left(hwnd, x, y)
         
         print("\nEnter 'q' at any time to quit, or continue with new coordinates.")
+
 
 def routine_mode():
     # Get the game window handle
@@ -201,6 +215,18 @@ def define_teammates():
         teammate_key = f"Teammate {i}"
         globals()[f"teammate_{i}_hwnd"] = window_handles.get(teammate_key, {}).get("hwnd")
         globals()[f"teammate_{i}_title"] = window_handles.get(teammate_key, {}).get("title")
+    print("----------------------")
+    print("Leader:")
+    print(f"Leader handle: {leader_hwnd}")
+    print(f"Leader title: {leader_title}")
+    print("----------------------")
+
+    for i in range(1, len(window_handles)):
+        print("----------------------")
+        print(f"Teammate {i}:")
+        print(f"Teammate {i} handle: {globals().get(f'teammate_{i}_hwnd')}")
+        print(f"Teammate {i} title: {globals().get(f'teammate_{i}_title')}")
+        print("----------------------")
 
 
 def cwc():      
@@ -286,7 +312,6 @@ def cwc():
 
     for member in team_coords_and_leader:
         # Reset view
-
         print(f"Resetting view for member {member['member_hwnd']} ({member['member_title']})")
         left(member["member_hwnd"], 1280, 48)
         sleep(1)
@@ -294,24 +319,22 @@ def cwc():
         sleep(1)  # Pause between blocks
 
         # Open CWC menu
-        for i in range(2):
-            cwc_entry_coordx = 719
-            cwc_entry_coordy = 150
-            
-            print(f"Opening CWC menu for member {member['member_hwnd']} ({member['member_title']})")
-            import random            
-            
+        cwc_entry_coordx = 719 
+        cwc_entry_coordy = 100 #varies from 70 to 170
+        
+        print(f"Opening CWC menu for member at coordinates ({cwc_entry_coordx}, {cwc_entry_coordy} for {member['member_hwnd']} ({member['member_title']})")
+        
+        for i in range(10):
             gamma = random.randint(0, 50)
-            right(member["member_hwnd"], cwc_entry_coordx, cwc_entry_coordy)
+            cwc_entryx_gamma_corrected = cwc_entry_coordx + gamma
+            cwc_entryy_gamma_corrected = cwc_entry_coordy + gamma
+            right(member["member_hwnd"], cwc_entryx_gamma_corrected, cwc_entryy_gamma_corrected)
+            print(f"Opening CWC menu for member at coordinates ({cwc_entryx_gamma_corrected}, {cwc_entryy_gamma_corrected} for {member['member_hwnd']} ({member['member_title']})")
             sleep(0.25)
-            right(member["member_hwnd"], cwc_entry_coordx + gamma, cwc_entry_coordy + gamma)
-            
-
-
+        
         sleep(2)  # Pause between blocks
 
     for member in team_coords_and_leader:
-        
         print(f"Entering CWC for member {member['member_hwnd']} ({member['member_title']})")
         # Enter CWC
         left(member["member_hwnd"], 339, 380)
@@ -354,30 +377,35 @@ def cwc():
     
     for member in team_coords_and_leader:
         if member["member_title"] == leader_title:
-            left(member["member_hwnd"], 300, 300)
-            print(f"Moving to 300,300")
-            sleep(3)
+            left(member["member_hwnd"], 200, 400)
+            print(f"Moving to 200,300")
+            sleep(4)
+            left(member["member_hwnd"], 200, 500)
+            print(f"Moving to 200,500")
+            sleep(4)
+            left(member["member_hwnd"], 200, 600)
+            print(f"Moving to 200,600")
+            sleep(4)
+            left(member["member_hwnd"], 200, 400)
+            print(f"Moving to 200,400")
+            sleep(4)
+            left(member["member_hwnd"], 200, 500)
+            print(f"Moving to 200,500")
+            sleep(4)
             left(member["member_hwnd"], 300, 500)
             print(f"Moving to 300,500")
-            sleep(3)
-            left(member["member_hwnd"], 300, 600)
-            print(f"Moving to 300,600")
-            sleep(3)
-            left(member["member_hwnd"], 300, 500)
-            print(f"Moving to 300,500")
-            sleep(3)
-            left(member["member_hwnd"], 300, 500)
-            print(f"Moving to 300,500")
-            sleep(3)
-            left(member["member_hwnd"], 300, 500)
-            print(f"Moving to 300,500")
-            sleep(3)
+            sleep(4)
             left(member["member_hwnd"], 400, 500)
             print(f"Moving to 400,500")
-            sleep(3)
+            sleep(4)
             left(member["member_hwnd"], 400, 300)
             print(f"Moving to 400,300")
+            sleep(4)
+            left(member["member_hwnd"], 200, 300)
+            print(f"Moving to 200,300")
             
+            sleep(5)
+
             print(f"Arrived at first boss! Cleaning mobs...")
         
 
@@ -386,13 +414,105 @@ def cwc():
     #(719, 50, 1), #cwc open menu
     #(318, 418, 0) #cwc enter
 
+def LW():
+    define_teammates()
+    # step 1 = create team
+    send_key(leader_hwnd, 'f')
+
+    # Define team coordinates for leader and one teammate
+    team_coords = [
+        {"member_hwnd": teammate_1_hwnd, "member_title": teammate_1_title, "right_click": (577, 245), "invite_click": (597, 290)}
+    ]
+    team_coords_and_leader = [
+        {"member_hwnd": leader_hwnd, "member_title": leader_title, "right_click": (577, 245), "invite_click": (597, 290)},
+        {"member_hwnd": teammate_1_hwnd, "member_title": teammate_1_title, "right_click": (577, 245), "invite_click": (597, 290)}
+    ]
+    print("----------------------")
+    print(f"Leader: {leader_title}")
+    print("----------------------")
+
+    print("----------------------")
+    print(f"Teammate 1: {teammate_1_title}")
+    print("----------------------")
+    # Common accept coordinates for all team members
+    accept_coords = (658, 400)
+
+    # First block: Right click on the teammate
+    for member in team_coords:
+        x, y = member["right_click"]
+        print(f"Right clicking at ({x}, {y})")
+        right(leader_hwnd, x, y)
+        sleep(0.5)
+
+        x, y = member["invite_click"]
+        print(f"Clicking invite at ({x}, {y})")
+        left(leader_hwnd, x, y)
+        sleep(0.5)
+
+    sleep(1)  # Pause between blocks
+
+    # Second block: Teammate accepts invite
+    for member in team_coords:
+        x, y = accept_coords
+        print(f"Accepting invite for member {member['member_hwnd']} ({member['member_title']}) at ({x}, {y})")
+        left(member["member_hwnd"], x, y)
+        sleep(0.5)
+
+    # Close team menu
+    send_key(leader_hwnd, 'esc')
+
+    # Reset view for leader and teammate
+    for member in team_coords:
+        print(f"Resetting view for member {member['member_hwnd']} ({member['member_title']})")
+        left(member["member_hwnd"], 1280, 48)
+        sleep(1)
+        
+    for member in team_coords_and_leader:
+        LW_entry_coordx = 706
+        LW_entry_coordy = 480
+        
+
+        print("----------------------")
+        print(f"Opening LW for leader at coordinates ({LW_entry_coordx}, {LW_entry_coordy})") 
+        print("----------------------")
+        # Open LW menu for leader
+        
+        right(member["member_hwnd"], LW_entry_coordx, LW_entry_coordy)
+        for i in range(8):
+            gamma = random.randint(0, 10)
+            LW_entryx_gamma_corrected = LW_entry_coordx + gamma
+            LW_entryy_gamma_corrected = LW_entry_coordy + gamma
+            print("----------------------")
+            print("Pressed right mouse button")
+            print("----------------------")
+            right(member["member_hwnd"], LW_entryx_gamma_corrected, LW_entryy_gamma_corrected)
+        
+        sleep(2)
+
+    for member in team_coords_and_leader:
+        print(f"Entering CWC for member {member['member_hwnd']} ({member['member_title']})")
+        # Enter CWC
+        sleep(1)
+        left(member["member_hwnd"], 339, 380)
+        sleep(1)
+
+    for member in team_coords_and_leader:
+
+        print(f"Resetting view for member {member['member_hwnd']} ({member['member_title']})")
+        left(member["member_hwnd"], 1280, 48)
+        sleep(1)   
+    
+
+    print("DONE")
+
 def main():    
     #choose the mode
     print("Choose the mode:")
     print("1. Auto Clicker")
     print("2. Debug Mode")
     print("3. Routine Mode.")
-    print("4. CWC")    
+    print("4. CWC")
+    print("5. LW")    
     choice = input("Enter your choice: ")
     if choice == '1':
         testing_clicker()
@@ -402,6 +522,8 @@ def main():
         routine_mode()
     elif choice == '4':
         cwc()
+    elif choice == '5':
+        LW()
     else:
         print("Invalid choice.")
         return
