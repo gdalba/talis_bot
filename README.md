@@ -2,7 +2,7 @@
 
 This app allows you to control up to 3 healers, 1 monk, and 2 wizards through intuitive input clicks.
 
-![Alt Text](static/Screenshot 2025-06-22 210006.png)
+![Alt Text](static/Screenshot2025-06-22210006.png)
 
 ## Prerequisites
 
