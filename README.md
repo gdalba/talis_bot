@@ -103,16 +103,6 @@ Before you begin, ensure you have met the following requirements:
 -  `auto_clicker.py`: [WIP] This script currently has four modes: 1. Auto Clicker - tests based on given list of x,y coordinates; 2. Debug mode - allows you to provide as many x, y coordinates (one by one) and execute mouse left click; 3. Routine mode - to implement standard routines of commands; and 4. cwc - current WIP of a automatic bot for 5 clients to run through CWC.
 -  `mouse.py`: Not my work, all credit goes to Tonirogerion (TonyR0XX) for providing the script. All I did was make it find window handle (hwnd) automatically.
 
-## Contributing
-
-To contribute to this project, follow these steps:
-
-1. Fork the repository.
-2. Create a new branch: `git checkout -b feature-branch`.
-3. Make your changes and commit them: `git commit -m 'Add some feature'`.
-4. Push to the branch: `git push origin feature-branch`.
-5. Submit a pull request.
-
 ## License
 
-No license lmfao.
+No license my people.
