@@ -1,4 +1,6 @@
 from time import sleep
+
+from win32 import win32process
 from mouse import get_game_hwnd, left, right
 import pygetwindow
 import win32api
@@ -48,28 +50,22 @@ routine_clicks = [
 
 
 
-
-
-
-
-def testing_clicker():
-        # Get the game window handle
-    hwnd = get_game_hwnd()
+def testing_clicker(hwnd):
     if not hwnd:
         print("Game window not found.")
         return
 
     print(f"Game window handle: {hwnd}")
     # Execute the clicks on the game window
-    for x, y in clicks:
-        print(f"Clicking at ({x}, {y})")
-        left(hwnd, x, y)
-        sleep(1)  # Add a delay between clicks if needed
-
-def debug_mode():
-    #do it recursively (until the user wants to stop)
     while True:
-        hwnd = get_game_hwnd()
+        for x, y in clicks:
+            #print(f"Clicking at ({x}, {y})")
+            left(hwnd, x, y)
+        
+
+def debug_mode(hwnd):
+    #do it recursively (until the user wants to stop)
+    while True:        
         if not hwnd:
             print("Game window not found.")
             return
@@ -512,12 +508,36 @@ def main():
     print("2. Debug Mode")
     print("3. Routine Mode.")
     print("4. CWC")
-    print("5. LW")    
+    print("5. LW")  
     choice = input("Enter your choice: ")
-    if choice == '1':
-        testing_clicker()
+    if choice == '1':        
+        print("Available windows with 'Bot Master' in title:")
+        for window in pygetwindow.getWindowsWithTitle("Bot Master"):
+            print(f"HWND: {window._hWnd}, Title: {window.title}")
+
+        hwnd_input = input("Enter the window title or PID of the game): ").strip()
+        try:
+            hwnd = int(hwnd_input) # decimal, same format as printed list
+        except ValueError:
+            print("Invalid HWND format. Enter the number exactly as shown.")
+            return
+
+        print(f"Selected HWND: {hwnd}")
+        testing_clicker(hwnd)
     elif choice == '2':
-        debug_mode()
+        print("Available windows with 'Bot Master' in title:")
+        for window in pygetwindow.getWindowsWithTitle("Bot Master"):
+            print(f"HWND: {window._hWnd}, Title: {window.title}")
+
+        hwnd_input = input("Enter the window title or PID of the game): ").strip()
+        try:
+            hwnd = int(hwnd_input) # decimal, same format as printed list
+        except ValueError:
+            print("Invalid HWND format. Enter the number exactly as shown.")
+            return
+
+        print(f"Selected HWND: {hwnd}")
+        debug_mode(hwnd)
     elif choice == '3':
         routine_mode()
     elif choice == '4':

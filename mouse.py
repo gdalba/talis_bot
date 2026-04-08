@@ -81,7 +81,7 @@ def get_window_title(self, pid):
         print(f"Error enumerating windows: {e}")
     return param['title']
 
-def get_game_hwnd(pid=None, title="monkito - Bot Master"):
+def get_game_hwnd(pid=None, title="Wizard101"):
     """
     Get game window handle by PID or title.
     Args:

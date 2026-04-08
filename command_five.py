@@ -2,6 +2,9 @@ import tkinter as tk
 from tkinter import ttk
 from ttkbootstrap import Style
 from ttkbootstrap.constants import *
+import json
+import queue
+import threading
 import psutil
 import win32gui
 import win32api
@@ -11,7 +14,7 @@ import subprocess
 import time
 import pyautogui
 import os
-import signal 
+import signal
 
 class CommandFive:
     def __init__(self, root):        
@@ -219,6 +222,20 @@ class CommandFive:
         self.pid_list_text = tk.Text(root, height=10, width=50)
         self.pid_list_text.pack(pady=10)
 
+        tracker_frame = ttk.LabelFrame(root, text="Client Pointer Tracker")
+        tracker_frame.pack(fill="x", padx=10, pady=10)
+
+        self.tracker_toggle_button = ttk.Button(
+            tracker_frame,
+            text="Start Tracker",
+            bootstyle="success",
+            command=self.toggle_tracker,
+        )
+        self.tracker_toggle_button.pack(side=tk.LEFT, padx=8, pady=8)
+
+        self.tracker_text = tk.Text(tracker_frame, height=10, width=120)
+        self.tracker_text.pack(side=tk.LEFT, padx=8, pady=8, fill="x", expand=True)
+
         
         self.process = None
         
@@ -234,6 +251,157 @@ class CommandFive:
         self.BOSSwiz_processes = []
         self.sin_process = None
 
+        # Tracker process state
+        self.tracker_process = None
+        self.tracker_reader_thread = None
+        self.tracker_queue = queue.Queue()
+        self.tracker_update_job = None
+        self.is_tracker_running = False
+        self.tracker_latest = {}
+        self.tracker_events = []
+
+        self._render_tracker_text()
+
+        self.root.protocol("WM_DELETE_WINDOW", self.on_close)
+
+        '''# -----------------------------
+        # Pointers integration (NEW)
+        # -----------------------------
+        self._pointers_cache = {}  # pid:int -> Pointers
+        self._monitor_job = None
+        self._is_monitoring = False
+
+        monitor_frame = ttk.LabelFrame(self.root, text="Live Monitor (Pointers)")
+        monitor_frame.pack(fill="x", padx=10, pady=10)
+
+        self.monitor_toggle_btn = ttk.Button(
+            monitor_frame,
+            text="Start Live Monitor",
+            bootstyle="success",
+            command=self.toggle_live_monitor,
+        )
+        self.monitor_toggle_btn.pack(side=tk.LEFT, padx=8, pady=8)
+
+        self.monitor_text = tk.Text(monitor_frame, height=8, width=110)
+        self.monitor_text.pack(side=tk.LEFT, padx=8, pady=8, fill="x", expand=True)
+
+        # ensure we clean up handles on close
+        self.root.protocol("WM_DELETE_WINDOW", self._on_close)
+
+        # Initial refresh of PIDs
+        self.refresh_pid_list()
+
+    # -----------------------------
+    # Pointers integration helpers (NEW)
+    # -----------------------------
+    def _get_pointers(self, pid: int):
+        p = self._pointers_cache.get(pid)
+        if p is not None:
+            return p
+        try:
+            p = Pointers(pid)
+            self._pointers_cache[pid] = p
+            return p
+        except Exception:
+            return None
+
+    def _close_all_pointers(self):
+        for p in self._pointers_cache.values():
+            try:
+                p.close()
+            except Exception:
+                pass
+        self._pointers_cache.clear()
+
+    def toggle_live_monitor(self):
+        self._is_monitoring = not self._is_monitoring
+        if self._is_monitoring:
+            self.monitor_toggle_btn.config(text="Stop Live Monitor", bootstyle="danger")
+            self._schedule_monitor_tick()
+        else:
+            self.monitor_toggle_btn.config(text="Start Live Monitor", bootstyle="success")
+            if self._monitor_job is not None:
+                try:
+                    self.root.after_cancel(self._monitor_job)
+                except Exception:
+                    pass
+                self._monitor_job = None
+
+    def _schedule_monitor_tick(self):
+        self._monitor_job = self.root.after(500, self._monitor_tick)  # 500ms refresh
+
+    def _monitor_tick(self):
+        if not self._is_monitoring:
+            return
+
+        lines = []
+        info_pid_raw = self.info_pid_entry.get().strip()
+        pids_raw = [
+            info_pid_raw,
+            self.t1_pid_entry.get().strip(),
+            self.t2_pid_entry.get().strip(),
+            self.t3_pid_entry.get().strip(),
+            self.t4_pid_entry.get().strip(),
+        ]
+
+        for label, pid_s in zip(["INFO", "T1", "T2", "T3", "T4"], pids_raw):
+            if not pid_s:
+                continue
+            try:
+                pid = int(pid_s)
+            except ValueError:
+                lines.append(f"{label}: PID '{pid_s}' invalid")
+                continue
+
+            ptr = self._get_pointers(pid)
+            if ptr is None:
+                lines.append(f"{label}: PID {pid} (pointers: failed to open)")
+                continue
+
+            # Read a few useful fields from [`Pointers`](pointers.py)
+            name = ptr.get_char_name()  # [`Pointers.get_char_name`](pointers.py)
+            lvl = ptr.get_level()       # [`Pointers.get_level`](pointers.py)
+            hp = ptr.get_hp()           # [`Pointers.get_hp`](pointers.py)
+            max_hp = ptr.get_max_hp()   # [`Pointers.get_max_hp`](pointers.py)
+            mp = ptr.get_mana()         # [`Pointers.get_mana`](pointers.py)
+            max_mp = ptr.get_max_mana() # [`Pointers.get_max_mana`](pointers.py)
+            x = ptr.get_x()             # [`Pointers.get_x`](pointers.py)
+            y = ptr.get_y()             # [`Pointers.get_y`](pointers.py)
+            loc = ptr.get_location()    # [`Pointers.get_location`](pointers.py)
+
+            tgt_selected = ptr.is_target_selected()  # [`Pointers.is_target_selected`](pointers.py)
+            tgt_name = ptr.get_target_name() if tgt_selected else None  # [`Pointers.get_target_name`](pointers.py)
+            tgt_hp = ptr.target_hp() if tgt_selected else None          # [`Pointers.target_hp`](pointers.py)
+
+            lines.append(
+                f"{label}: PID {pid} | {name=} | lvl={lvl} | hp={hp}/{max_hp} | mp={mp}/{max_mp} | pos=({x},{y}) | loc={loc}"
+            )
+            if tgt_selected:
+                lines.append(f"      target: {tgt_name} | hp={tgt_hp}")
+            else:
+                lines.append("      target: (none)")
+
+        self.monitor_text.delete("1.0", tk.END)
+        self.monitor_text.insert(tk.END, "\n".join(lines) if lines else "Enter PIDs above, then Start Live Monitor.")
+
+        self._schedule_monitor_tick()
+
+    def _on_close(self):
+        # stop monitor
+        self._is_monitoring = False
+        if self._monitor_job is not None:
+            try:
+                self.root.after_cancel(self._monitor_job)
+            except Exception:
+                pass
+            self._monitor_job = None
+
+        # close pointers handles
+        self._close_all_pointers()
+
+        # close window
+        self.root.destroy()'''
+    
     def toggle_healer(self):
          # Toggle the healing state
         self.is_healing = not self.is_healing
@@ -302,6 +470,209 @@ class CommandFive:
         else:
             self.sin_toggle.config(text="Start Sin", bootstyle="success")
             self.stop_sin()
+
+    def toggle_tracker(self):
+        if self.is_tracker_running:
+            self.stop_tracker(user_initiated=True)
+        else:
+            self.start_tracker()
+
+    def start_tracker(self):
+        if self.is_tracker_running:
+            return
+
+        self._clear_tracker_queue()
+        self.tracker_events = []
+        self.tracker_latest = {}
+
+        try:
+            self.tracker_process = subprocess.Popen(
+                ["python", "client_pointer_tracker.py", "--interval", "0.5"],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                bufsize=1,
+            )
+        except Exception as e:
+            self._append_tracker_event(f"Failed to start tracker: {e}")
+            self._render_tracker_text()
+            return
+
+        self.is_tracker_running = True
+        self.tracker_toggle_button.config(text="Stop Tracker", bootstyle="danger")
+        self._append_tracker_event("Tracker started.")
+        self._start_tracker_reader_thread()
+        self._schedule_tracker_ui_update()
+
+    def stop_tracker(self, user_initiated=False):
+        if self.tracker_update_job is not None:
+            try:
+                self.root.after_cancel(self.tracker_update_job)
+            except Exception:
+                pass
+            self.tracker_update_job = None
+
+        process = self.tracker_process
+        self.tracker_process = None
+
+        if process and process.poll() is None:
+            try:
+                os.kill(process.pid, signal.SIGTERM)
+            except Exception:
+                try:
+                    process.terminate()
+                except Exception:
+                    pass
+
+        if self.is_tracker_running and user_initiated:
+            self._append_tracker_event("Tracker stopped by user.")
+
+        self.is_tracker_running = False
+        self.tracker_toggle_button.config(text="Start Tracker", bootstyle="success")
+        self._clear_tracker_queue()
+        self._render_tracker_text()
+
+    def _start_tracker_reader_thread(self):
+        self.tracker_reader_thread = threading.Thread(target=self._read_tracker_stream, daemon=True)
+        self.tracker_reader_thread.start()
+
+    def _clear_tracker_queue(self):
+        while True:
+            try:
+                self.tracker_queue.get_nowait()
+            except queue.Empty:
+                break
+
+    def _read_tracker_stream(self):
+        process = self.tracker_process
+        if process is None or process.stdout is None:
+            self.tracker_queue.put(None)
+            return
+
+        try:
+            for line in process.stdout:
+                line = line.strip()
+                if line:
+                    self.tracker_queue.put(line)
+        finally:
+            self.tracker_queue.put(None)
+
+    def _schedule_tracker_ui_update(self):
+        self.tracker_update_job = self.root.after(200, self._drain_tracker_queue)
+
+    def _drain_tracker_queue(self):
+        stream_closed = False
+
+        while True:
+            try:
+                item = self.tracker_queue.get_nowait()
+            except queue.Empty:
+                break
+
+            if item is None:
+                stream_closed = True
+                continue
+
+            try:
+                payload = json.loads(item)
+            except json.JSONDecodeError:
+                if item.startswith("Erro ao calcular o ponteiro"):
+                    continue
+                self._append_tracker_event(f"Tracker: {item}")
+                continue
+
+            self._handle_tracker_message(payload)
+
+        if stream_closed:
+            exit_code = None
+            if self.tracker_process is not None:
+                exit_code = self.tracker_process.poll()
+            if exit_code is None and self.tracker_process is not None:
+                try:
+                    exit_code = self.tracker_process.wait(timeout=1)
+                except Exception:
+                    exit_code = None
+
+            self.is_tracker_running = False
+            self.tracker_process = None
+            self.tracker_toggle_button.config(text="Start Tracker", bootstyle="success")
+            self._append_tracker_event(f"Tracker stopped (exit code: {exit_code}).")
+
+        self._render_tracker_text()
+
+        if self.is_tracker_running:
+            self._schedule_tracker_ui_update()
+        else:
+            self.tracker_update_job = None
+
+    def _handle_tracker_message(self, payload):
+        message_type = payload.get("type")
+
+        if message_type == "snapshot":
+            pid = payload.get("pid")
+            if pid is not None:
+                self.tracker_latest[pid] = payload
+            return
+
+        if message_type == "status":
+            status = payload.get("status", "status")
+            message = payload.get("message", "")
+            pid = payload.get("pid")
+            if status == "pid_removed" and pid in self.tracker_latest:
+                self.tracker_latest.pop(pid, None)
+            if pid is not None:
+                self._append_tracker_event(f"{status} (PID {pid}): {message}")
+            else:
+                self._append_tracker_event(f"{status}: {message}")
+            return
+
+        if message_type == "fatal":
+            pid = payload.get("pid")
+            error = payload.get("error", "unknown_error")
+            message = payload.get("message", "")
+            if pid is not None:
+                self._append_tracker_event(f"FATAL PID {pid} ({error}): {message}")
+            else:
+                self._append_tracker_event(f"FATAL ({error}): {message}")
+            return
+
+        self._append_tracker_event(f"Unhandled tracker message: {payload}")
+
+    def _append_tracker_event(self, text):
+        timestamp = time.strftime("%H:%M:%S")
+        self.tracker_events.append(f"[{timestamp}] {text}")
+        self.tracker_events = self.tracker_events[-8:]
+
+    def _render_tracker_text(self):
+        lines = []
+        lines.append(f"Tracker running: {self.is_tracker_running}")
+
+        if self.tracker_events:
+            lines.append("Recent events:")
+            lines.extend(self.tracker_events)
+
+        if self.tracker_latest:
+            lines.append("Snapshots:")
+            for pid in sorted(self.tracker_latest.keys()):
+                data = self.tracker_latest[pid]
+                name = data.get("name")
+                level = data.get("level")
+                hp = data.get("hp")
+                x = data.get("x")
+                y = data.get("y")
+                window_title = data.get("window_title")
+                lines.append(
+                    f"PID {pid} | {window_title} | name={name} | lvl={level} | hp={hp} | x={x} | y={y}"
+                )
+        else:
+            lines.append("No snapshots yet.")
+
+        self.tracker_text.delete("1.0", tk.END)
+        self.tracker_text.insert(tk.END, "\n".join(lines))
+
+    def on_close(self):
+        self.stop_tracker(user_initiated=False)
+        self.root.destroy()
 
     def start_monk(self):
         monk_pid = self.monk_pid_entry.get()
